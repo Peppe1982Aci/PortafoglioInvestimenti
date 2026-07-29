@@ -26,7 +26,9 @@ from database import (
     elimina_strumento,
     cerca_strumenti,
     numero_strumenti,
-    valore_portafoglio
+    valore_portafoglio,
+    prezzo_corrente,
+    variazione_corrente
 )
 
 from services.import_export import (
@@ -128,6 +130,10 @@ class Portafoglio(QWidget):
             "Quantità",
 
             "Prezzo Medio",
+
+            "Prezzo Attuale",
+            "Var %",
+            "Valore Mercato",
 
             "Valuta",
 
@@ -237,6 +243,10 @@ class Portafoglio(QWidget):
                 QStandardItem(f'{float(s["quantita"]):,.4f}'),
 
                 QStandardItem(f'{float(s["prezzo_medio"]):,.4f}'),
+
+                QStandardItem(f'{prezzo_corrente(s["ticker"]):,.4f}'),
+                QStandardItem(f'{variazione_corrente(s["ticker"]):.2f}%'),
+                QStandardItem(f'{float(s["quantita"])*prezzo_corrente(s["ticker"]):,.2f}'),
 
                 QStandardItem(str(s["valuta"])),
 
@@ -421,6 +431,10 @@ class Portafoglio(QWidget):
                 QStandardItem(f'{float(s["quantita"]):,.4f}'),
 
                 QStandardItem(f'{float(s["prezzo_medio"]):,.4f}'),
+
+                QStandardItem(f'{prezzo_corrente(s["ticker"]):,.4f}'),
+                QStandardItem(f'{variazione_corrente(s["ticker"]):.2f}%'),
+                QStandardItem(f'{float(s["quantita"])*prezzo_corrente(s["ticker"]):,.2f}'),
 
                 QStandardItem(str(s["valuta"])),
 
