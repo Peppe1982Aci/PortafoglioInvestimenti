@@ -1,5 +1,6 @@
 import sqlite3
 from pathlib import Path
+from services.quotes import QuoteService
 
 # ==========================================================
 # DATABASE
@@ -8,6 +9,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 
 DATABASE = BASE_DIR / "portafoglio.db"
+
+quote_service = QuoteService()
 
 
 # ==========================================================
@@ -890,3 +893,23 @@ def aggiorna_portafoglio():
     conn.commit()
 
     conn.close()
+
+# ==========================================================
+# QUOTAZIONI
+# ==========================================================
+
+def quotazione_corrente(ticker):
+    return quote_service.get_quote(ticker)
+
+def prezzo_corrente(ticker):
+    return quotazione_corrente(ticker).price
+
+def variazione_corrente(ticker):
+    return quotazione_corrente(ticker).variation
+
+def aggiorna_quotazioni():
+    strumenti = leggi_strumenti()
+    risultato = {}
+    for s in strumenti:
+        risultato[s["ticker"]] = quote_service.refresh_quote(s["ticker"])
+    return risultato
