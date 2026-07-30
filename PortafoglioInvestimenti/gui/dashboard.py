@@ -9,14 +9,12 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import Qt
 
 from database import (
-    numero_strumenti,
     numero_operazioni,
-    valore_portafoglio,
-    capitale_investito,
     totale_commissioni
 )
 
 from services.portfolio_service import PortfolioService
+
 
 class Dashboard(QWidget):
 
@@ -29,6 +27,7 @@ class Dashboard(QWidget):
 
         self.refresh()
 
+
     # --------------------------------------------------
 
     def crea_interfaccia(self):
@@ -40,13 +39,9 @@ class Dashboard(QWidget):
         titolo.setAlignment(Qt.AlignLeft)
 
         titolo.setStyleSheet("""
-
             font-size:26px;
-
             font-weight:bold;
-
             padding:8px;
-
         """)
 
         layout.addWidget(titolo)
@@ -65,6 +60,11 @@ class Dashboard(QWidget):
 
         self.lblPerformance = QLabel()
 
+        self.lblMigliore = QLabel()
+
+        self.lblPeggiore = QLabel()
+
+
         griglia.addWidget(
             self.crea_card(
                 "Strumenti",
@@ -73,6 +73,7 @@ class Dashboard(QWidget):
             0,
             0
         )
+
 
         griglia.addWidget(
             self.crea_card(
@@ -83,6 +84,7 @@ class Dashboard(QWidget):
             1
         )
 
+
         griglia.addWidget(
             self.crea_card(
                 "Capitale Investito",
@@ -92,6 +94,7 @@ class Dashboard(QWidget):
             0
         )
 
+
         griglia.addWidget(
             self.crea_card(
                 "Valore Portafoglio",
@@ -100,7 +103,6 @@ class Dashboard(QWidget):
             1,
             1
         )
-
         griglia.addWidget(
             self.crea_card(
                 "Commissioni",
@@ -109,6 +111,7 @@ class Dashboard(QWidget):
             2,
             0
         )
+
 
         griglia.addWidget(
             self.crea_card(
@@ -119,9 +122,31 @@ class Dashboard(QWidget):
             1
         )
 
+
+        griglia.addWidget(
+            self.crea_card(
+                "Migliore posizione",
+                self.lblMigliore
+            ),
+            3,
+            0
+        )
+
+
+        griglia.addWidget(
+            self.crea_card(
+                "Peggiore posizione",
+                self.lblPeggiore
+            ),
+            3,
+            1
+        )
+
+
         layout.addLayout(griglia)
 
         layout.addStretch()
+
 
     # --------------------------------------------------
 
@@ -134,60 +159,81 @@ class Dashboard(QWidget):
         label.setAlignment(Qt.AlignCenter)
 
         label.setStyleSheet("""
-
             font-size:22px;
-
             font-weight:bold;
-
-            color:#1565C0;
-
             padding:20px;
-
         """)
 
         layout.addWidget(label)
 
         return box
-  # --------------------------------------------------
+
+
+    # --------------------------------------------------
 
     def refresh(self):
 
         riepilogo = self.service.riepilogo()
 
-        strumenti = riepilogo["positions"]
-
-        operazioni = numero_operazioni()
-
-        investito = riepilogo["invested"]
-
-        valore = riepilogo["market_value"]
-
-        commissioni = totale_commissioni()
-
-        gain = riepilogo["gain"]
-
-        rendimento = riepilogo["gain_percent"]
+        self.lblStrumenti.setText(
+            str(riepilogo["positions"])
+        )
 
 
         self.lblOperazioni.setText(
-            str(operazioni)
+            str(numero_operazioni())
         )
+
 
         self.lblInvestito.setText(
-            f"{investito:,.2f} €"
+            f'{riepilogo["invested"]:,.2f} €'
         )
+
 
         self.lblValore.setText(
-            f"{valore:,.2f} €"
+            f'{riepilogo["market_value"]:,.2f} €'
         )
+
 
         self.lblCommissioni.setText(
-            f"{commissioni:,.2f} €"
+            f'{totale_commissioni():,.2f} €'
         )
 
+
         self.lblPerformance.setText(
-            f"{rendimento:,.2f} %"
+            f'{riepilogo["gain"]:,.2f} €\n'
+            f'({riepilogo["gain_percent"]:,.2f}%)'
         )
+
+
+        migliore = self.service.engine.best_position()
+
+        peggiore = self.service.engine.worst_position()
+
+
+        if migliore:
+
+            self.lblMigliere.setText(
+                f"{migliore.ticker}\n"
+                f"{migliore.gain_percent:,.2f}%"
+            )
+
+        else:
+
+            self.lblMigliore.setText("-")
+
+
+        if peggiore:
+
+            self.lblPeggiore.setText(
+                f"{peggiore.ticker}\n"
+                f"{peggiore.gain_percent:,.2f}%"
+            )
+
+        else:
+
+            self.lblPeggiore.setText("-")
+
 
     # --------------------------------------------------
 
