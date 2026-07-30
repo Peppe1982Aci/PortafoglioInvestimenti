@@ -3,7 +3,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QGridLayout,
     QLabel,
-    QGroupBox
+    QGroupBox,
+    QPushButton
 )
 
 from PySide6.QtCore import Qt
@@ -19,6 +20,7 @@ from services.portfolio_service import PortfolioService
 class Dashboard(QWidget):
 
     def __init__(self):
+
         super().__init__()
 
         self.service = PortfolioService()
@@ -46,22 +48,30 @@ class Dashboard(QWidget):
 
         layout.addWidget(titolo)
 
+
+        self.btnAggiorna = QPushButton(
+            "Aggiorna quotazioni"
+        )
+
+        self.btnAggiorna.clicked.connect(
+            self.aggiorna_quotazioni
+        )
+
+        layout.addWidget(
+            self.btnAggiorna
+        )
+
+
         griglia = QGridLayout()
 
+
         self.lblStrumenti = QLabel()
-
         self.lblOperazioni = QLabel()
-
         self.lblInvestito = QLabel()
-
         self.lblValore = QLabel()
-
         self.lblCommissioni = QLabel()
-
         self.lblPerformance = QLabel()
-
         self.lblMigliore = QLabel()
-
         self.lblPeggiore = QLabel()
 
 
@@ -103,6 +113,8 @@ class Dashboard(QWidget):
             1,
             1
         )
+
+
         griglia.addWidget(
             self.crea_card(
                 "Commissioni",
@@ -121,8 +133,6 @@ class Dashboard(QWidget):
             2,
             1
         )
-
-
         griglia.addWidget(
             self.crea_card(
                 "Migliore posizione",
@@ -156,7 +166,9 @@ class Dashboard(QWidget):
 
         layout = QVBoxLayout(box)
 
-        label.setAlignment(Qt.AlignCenter)
+        label.setAlignment(
+            Qt.AlignCenter
+        )
 
         label.setStyleSheet("""
             font-size:22px;
@@ -174,6 +186,7 @@ class Dashboard(QWidget):
     def refresh(self):
 
         riepilogo = self.service.riepilogo()
+
 
         self.lblStrumenti.setText(
             str(riepilogo["positions"])
@@ -213,7 +226,7 @@ class Dashboard(QWidget):
 
         if migliore:
 
-            self.lblMigliere.setText(
+            self.lblMigliore.setText(
                 f"{migliore.ticker}\n"
                 f"{migliore.gain_percent:,.2f}%"
             )
@@ -233,6 +246,15 @@ class Dashboard(QWidget):
         else:
 
             self.lblPeggiore.setText("-")
+
+
+    # --------------------------------------------------
+
+    def aggiorna_quotazioni(self):
+
+        self.service.aggiorna_quotazioni()
+
+        self.refresh()
 
 
     # --------------------------------------------------
