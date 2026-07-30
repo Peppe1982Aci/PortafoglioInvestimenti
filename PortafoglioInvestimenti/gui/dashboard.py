@@ -16,11 +16,14 @@ from database import (
     totale_commissioni
 )
 
+from services.portfolio_service import PortfolioService
 
 class Dashboard(QWidget):
 
     def __init__(self):
         super().__init__()
+
+        self.service = PortfolioService()
 
         self.crea_interfaccia()
 
@@ -145,32 +148,26 @@ class Dashboard(QWidget):
         layout.addWidget(label)
 
         return box
-
-    # --------------------------------------------------
+  # --------------------------------------------------
 
     def refresh(self):
 
-        strumenti = numero_strumenti()
+        riepilogo = self.service.riepilogo()
+
+        strumenti = riepilogo["positions"]
 
         operazioni = numero_operazioni()
 
-        investito = capitale_investito()
+        investito = riepilogo["invested"]
 
-        valore = valore_portafoglio()
+        valore = riepilogo["market_value"]
 
         commissioni = totale_commissioni()
 
-        gain = valore - investito
+        gain = riepilogo["gain"]
 
-        rendimento = 0.0
+        rendimento = riepilogo["gain_percent"]
 
-        if investito > 0:
-
-            rendimento = (gain / investito) * 100
-
-        self.lblStrumenti.setText(
-            str(strumenti)
-        )
 
         self.lblOperazioni.setText(
             str(operazioni)
